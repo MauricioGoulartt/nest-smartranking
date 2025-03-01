@@ -7,7 +7,8 @@ import { ConfigModule } from '@nestjs/config';
   imports: [
     ConfigModule.forRoot(),
     MongooseModule.forRoot(
-      `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@${process.env.DB_CLUSTER}.exhza.mongodb.net/?retryWrites=true&w=majority&appName=${process.env.DB_NAME}`,
+      `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@${process.env.DB_CLUSTER}.exhza.mongodb.net/?retryWrites=true&w=majority&appName=smartranking`,
+      { dbName: process.env.DB_NAME },
     ),
     PlayersModule,
   ],
