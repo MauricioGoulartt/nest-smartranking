@@ -1,5 +1,5 @@
-import { Injectable, Logger } from '@nestjs/common';
-import { CreatePlayerDto } from './dtos/create-player.dto';
+import { Injectable, Logger, NotFoundException, Query } from '@nestjs/common';
+import { PlayerDto } from './dtos/create-player.dto';
 import { Player } from './interfaces/jogador.interface';
 import { v4 as uuid } from 'uuid';
 
@@ -7,18 +7,42 @@ import { v4 as uuid } from 'uuid';
 export class PlayersService {
   private players: Player[] = [];
 
-  private readonly logger = new Logger(PlayersService.name);
+  async createUpdatePLayer(player: PlayerDto): Promise<void> {
+    const { email } = player;
 
-  async createUpdatePLayer(createPlayerDto: CreatePlayerDto): Promise<void> {
-    this.logger.log(`createPlayerDto: ${JSON.stringify(createPlayerDto)}`);
+    const existingPlayer = await this.findByEmail(email);
 
-    this.create(createPlayerDto);
+    if (existingPlayer) {
+      existingPlayer.name = player.name;
+
+      this.update(existingPlayer, player);
+    } else {
+      this.create(player);
+    }
   }
 
-  private create(createPlayerDto: CreatePlayerDto): void {
-    const { name, email, phoneNumber } = createPlayerDto;
+  async findAllPlayers(): Promise<Player[]> {
+    return await this.findAll();
+  }
 
-    const player: Player = {
+  async findPlayerByEmail(@Query('email') email: string): Promise<Player> {
+    return await this.findByEmail(email);
+  }
+
+  async deletePlayer(_id: string): Promise<void> {
+    const player = this.players.find((player) => player._id === _id);
+
+    if (!player) {
+      throw new NotFoundException('Player not found');
+    }
+
+    this.delete(_id);
+  }
+
+  private create(player: PlayerDto): void {
+    const { name, email, phoneNumber } = player;
+
+    const l_player: Player = {
       _id: uuid(),
       name,
       email,
@@ -27,14 +51,34 @@ export class PlayersService {
       positionRanking: 1,
       urlAvatar: 'https://www.google.com.br/',
     };
-    this.players.push(player);
+    this.players.push(l_player);
   }
 
-  async findAll(): Promise<Player[]> {
+  private update(existingPlayer: Player, player: PlayerDto): void {
+    const { name } = player;
+
+    existingPlayer.name = name;
+
+    this.players = this.players.map((p) =>
+      p._id === existingPlayer._id ? existingPlayer : p,
+    );
+  }
+
+  private async findAll(): Promise<Player[]> {
     return this.players;
   }
 
-  async findById(_id: string): Promise<Player> {
-    return this.players.find((player) => player._id === _id);
+  private async findByEmail(email: string): Promise<Player> {
+    const findedPlayer = this.players.find((player) => player.email === email);
+
+    if (!findedPlayer) {
+      return null;
+    }
+
+    return findedPlayer;
+  }
+
+  private delete(_id: string): void {
+    this.players = this.players.filter((player) => player._id !== _id);
   }
 }
