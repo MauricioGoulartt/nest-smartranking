@@ -1,4 +1,4 @@
-import { Injectable, Query } from '@nestjs/common';
+import { BadRequestException, Injectable, Query } from '@nestjs/common';
 import { PlayerDto } from './dtos/create-player.dto';
 import { Player } from './interfaces/player.interface';
 import { InjectModel } from '@nestjs/mongoose';
@@ -12,17 +12,28 @@ export class PlayersService {
 
   // public methods
 
-  async createUpdatePLayer(playerDto: PlayerDto): Promise<void> {
+  async createPLayer(playerDto: PlayerDto): Promise<Player> {
     const { email } = playerDto;
-
     const existingPlayer = await this.playerModel.findOne({ email }).exec();
+
+    if (!existingPlayer) {
+      return this.create(playerDto);
+    } else {
+      throw new BadRequestException(
+        `Player already exists with the email ${playerDto.email}`,
+      );
+    }
+  }
+
+  async updatePLayer(_id: string, playerDto: PlayerDto): Promise<void> {
+    const existingPlayer = await this.playerModel.findById({ _id }).exec();
 
     if (existingPlayer) {
       existingPlayer.name = playerDto.name;
 
-      this.update(existingPlayer, playerDto);
+      this.update(_id, playerDto);
     } else {
-      this.create(playerDto);
+      throw new BadRequestException(`Player not found`);
     }
   }
 
@@ -45,13 +56,8 @@ export class PlayersService {
     return await createdPlayer.save();
   }
 
-  private async update(
-    existingPlayer: Player,
-    player: PlayerDto,
-  ): Promise<Player> {
-    return await this.playerModel
-      .findOneAndUpdate({ email: existingPlayer.email }, { $set: player })
-      .exec();
+  private async update(_id: string, player: PlayerDto): Promise<void> {
+    await this.playerModel.findOneAndUpdate({ _id }, { $set: player }).exec();
   }
 
   private async findAll(): Promise<Player[]> {
