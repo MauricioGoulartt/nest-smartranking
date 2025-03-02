@@ -36,10 +36,10 @@ export class PlayersController {
     return await this.playersService.findAllPlayers();
   }
 
-  @Delete()
+  @Delete('/:_id')
   async deletePlayer(
-    @Query('email', PlayersValidationParamsPipe) email: string,
+    @Param('_id', PlayersValidationParamsPipe) _id: string,
   ): Promise<void> {
-    await this.playersService.deletePlayer(email);
+    await this.playersService.deletePlayer(_id);
   }
 }

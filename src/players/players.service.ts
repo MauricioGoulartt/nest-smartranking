@@ -34,8 +34,8 @@ export class PlayersService {
     return await this.findById(_id);
   }
 
-  async deletePlayer(email: string): Promise<void> {
-    return await this.delete(email);
+  async deletePlayer(_id: string): Promise<void> {
+    return await this.delete(_id);
   }
 
   // private methods
@@ -62,7 +62,7 @@ export class PlayersService {
     return await this.playerModel.findById(_id).exec();
   }
 
-  private async delete(email: string): Promise<void> {
-    await this.playerModel.findOneAndDelete({ email }).exec();
+  private async delete(_id: string): Promise<void> {
+    await this.playerModel.findOneAndDelete({ _id }).exec();
   }
 }
