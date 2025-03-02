@@ -11,6 +11,7 @@ import {
 import { PlayerDto } from './dtos/create-player.dto';
 import { PlayersService } from './players.service';
 import { Player } from './interfaces/player.interface';
+import { PlayersValidationParamsPipe } from './pipes/players-validation-params.pipe';
 
 @Controller('api/v1/players')
 export class PlayersController {
@@ -24,7 +25,7 @@ export class PlayersController {
 
   @Get()
   async findAllPlayers(
-    @Query('email') email: string,
+    @Query('email', PlayersValidationParamsPipe) email: string,
   ): Promise<Player[] | Player> {
     if (email) {
       return await this.playersService.findPlayerByEmail(email);
@@ -33,7 +34,9 @@ export class PlayersController {
   }
 
   @Delete()
-  async deletePlayer(@Query('_id') _id: string): Promise<void> {
-    await this.playersService.deletePlayer(_id);
+  async deletePlayer(
+    @Query('email', PlayersValidationParamsPipe) email: string,
+  ): Promise<void> {
+    await this.playersService.deletePlayer(email);
   }
 }
