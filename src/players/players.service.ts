@@ -30,8 +30,8 @@ export class PlayersService {
     return await this.findAll();
   }
 
-  async findPlayerByEmail(@Query('email') email: string): Promise<Player> {
-    return await this.findByEmail(email);
+  async findPlayerById(_id: string): Promise<Player> {
+    return await this.findById(_id);
   }
 
   async deletePlayer(email: string): Promise<void> {
@@ -58,8 +58,8 @@ export class PlayersService {
     return await this.playerModel.find().exec();
   }
 
-  private async findByEmail(email: string): Promise<Player> {
-    return await this.playerModel.findOne().where('email').equals(email);
+  private async findById(_id: string): Promise<Player> {
+    return await this.playerModel.findById(_id).exec();
   }
 
   private async delete(email: string): Promise<void> {

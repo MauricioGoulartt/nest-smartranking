@@ -7,6 +7,7 @@ import {
   Delete,
   UsePipes,
   ValidationPipe,
+  Param,
 } from '@nestjs/common';
 import { PlayerDto } from './dtos/create-player.dto';
 import { PlayersService } from './players.service';
@@ -23,13 +24,15 @@ export class PlayersController {
     await this.playersService.createUpdatePLayer(player);
   }
 
-  @Get()
-  async findAllPlayers(
-    @Query('email', PlayersValidationParamsPipe) email: string,
+  @Get('/:_id')
+  async findPlayer(
+    @Param('_id', PlayersValidationParamsPipe) _id: string,
   ): Promise<Player[] | Player> {
-    if (email) {
-      return await this.playersService.findPlayerByEmail(email);
-    }
+    return await this.playersService.findPlayerById(_id);
+  }
+
+  @Get()
+  async findAllPlayers(): Promise<Player[] | Player> {
     return await this.playersService.findAllPlayers();
   }
 
