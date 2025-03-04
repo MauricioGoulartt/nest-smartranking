@@ -1,8 +1,9 @@
 import { BadRequestException, Injectable, Query } from '@nestjs/common';
-import { PlayerDto } from './dtos/create-player.dto';
+import { CreatePlayerDto } from './dtos/create-player.dto';
 import { Player } from './interfaces/player.interface';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
+import { UpdatePlayerDto } from './dtos/update-player.dto';
 
 @Injectable()
 export class PlayersService {
@@ -12,26 +13,29 @@ export class PlayersService {
 
   // public methods
 
-  async createPLayer(playerDto: PlayerDto): Promise<Player> {
-    const { email } = playerDto;
+  async createPLayer(createPlayerDto: CreatePlayerDto): Promise<Player> {
+    const { email } = createPlayerDto;
     const existingPlayer = await this.playerModel.findOne({ email }).exec();
 
     if (!existingPlayer) {
-      return this.create(playerDto);
+      return this.create(createPlayerDto);
     } else {
       throw new BadRequestException(
-        `Player already exists with the email ${playerDto.email}`,
+        `Player already exists with the email ${createPlayerDto.email}`,
       );
     }
   }
 
-  async updatePLayer(_id: string, playerDto: PlayerDto): Promise<void> {
+  async updatePLayer(
+    _id: string,
+    updatePlayerDto: UpdatePlayerDto,
+  ): Promise<void> {
     const existingPlayer = await this.playerModel.findById({ _id }).exec();
 
     if (existingPlayer) {
-      existingPlayer.name = playerDto.name;
+      existingPlayer.name = updatePlayerDto.name;
 
-      this.update(_id, playerDto);
+      this.update(_id, existingPlayer);
     } else {
       throw new BadRequestException(`Player not found`);
     }
@@ -51,12 +55,12 @@ export class PlayersService {
 
   // private methods
 
-  private async create(playerDto: PlayerDto): Promise<Player> {
-    const createdPlayer = new this.playerModel(playerDto);
+  private async create(createPlayerDto: CreatePlayerDto): Promise<Player> {
+    const createdPlayer = new this.playerModel(createPlayerDto);
     return await createdPlayer.save();
   }
 
-  private async update(_id: string, player: PlayerDto): Promise<void> {
+  private async update(_id: string, player: UpdatePlayerDto): Promise<void> {
     await this.playerModel.findOneAndUpdate({ _id }, { $set: player }).exec();
   }
 
