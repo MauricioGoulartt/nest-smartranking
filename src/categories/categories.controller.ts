@@ -28,6 +28,12 @@ export class CategoriesController {
     return await this.categoriesService.createCategory(createCategoryDto);
   }
 
+  @Post('/:category/players/:playerId')
+  @UsePipes(ValidationPipe)
+  async attachPlayerCategory(@Param() params: string[]): Promise<void> {
+    return await this.categoriesService.attachPlayerCategory(params);
+  }
+
   @Put('/:_id')
   @UsePipes(ValidationPipe)
   async updateCategory(

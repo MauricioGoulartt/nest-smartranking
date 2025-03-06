@@ -4,11 +4,13 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { CreateCategoryDto } from './dtos/create-category.dto';
 import { UpdateCategoryDto } from './dtos/update-category.dto';
+import { PlayersService } from 'src/players/players.service';
 
 @Injectable()
 export class CategoriesService {
   constructor(
     @InjectModel('Category') private readonly categoryModel: Model<Category>,
+    private readonly playersService: PlayersService,
   ) {}
 
   // public methods
@@ -52,6 +54,53 @@ export class CategoriesService {
 
   async deleteCategory(_id: string): Promise<void> {
     return await this.delete(_id);
+  }
+
+  async attachPlayerCategory(params: string[]): Promise<void> {
+    const category = params['category'];
+    const playerId = params['playerId'];
+
+    const categoryFound = await this.categoryModel.findById(category).exec();
+
+    const playerRegisteredCategory = await this.categoryModel
+      .findOne()
+      .where('players')
+      .in(playerId)
+      .exec();
+
+    /*
+    Desafio
+    Escopo da exceção realocado para o próprio Categorias Service
+    Verificar se o jogador informado já se encontra cadastrado
+    */
+
+    //await this.jogadoresService.consultarJogadorPeloId(idJogador)
+
+    const foundPlayer = await this.playersService.findPlayerById(playerId);
+
+    if (!foundPlayer) {
+      throw new BadRequestException(`The id ${playerId} is not a player!`);
+    }
+
+    if (!categoryFound) {
+      throw new BadRequestException(`Category ${category} not registered!`);
+    }
+
+    if (playerRegisteredCategory) {
+      throw new BadRequestException(
+        `Player ${playerId} already registered in Category ${playerRegisteredCategory.category}!`,
+      );
+    }
+
+    categoryFound.players.push(foundPlayer);
+    console.log(categoryFound);
+    await this.categoryModel
+      .findOneAndUpdate(
+        { _id: categoryFound._id },
+        { $push: { players: foundPlayer } },
+        { new: true },
+      )
+      .exec();
   }
 
   // private methods

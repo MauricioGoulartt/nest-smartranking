@@ -4,6 +4,7 @@ export class CreateCategoryDto {
   @IsNotEmpty()
   @IsString()
   readonly category: string;
+
   @IsNotEmpty()
   @IsString()
   description: string;

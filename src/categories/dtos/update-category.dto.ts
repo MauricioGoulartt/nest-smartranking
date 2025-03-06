@@ -1,12 +1,8 @@
-import { ArrayMinSize, IsArray, IsNotEmpty, IsString } from 'class-validator';
+import { ArrayMinSize, IsArray, IsOptional, IsString } from 'class-validator';
 
 export class UpdateCategoryDto {
-  @IsNotEmpty()
   @IsString()
-  readonly category: string;
-
-  @IsNotEmpty()
-  @IsString()
+  @IsOptional()
   description: string;
 
   @IsArray()
