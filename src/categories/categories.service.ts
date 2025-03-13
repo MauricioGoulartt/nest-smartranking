@@ -62,8 +62,6 @@ export class CategoriesService {
 
     const categoryFound = await this.categoryModel.findById(category).exec();
 
-    console.log(categoryFound);
-
     const playerRegisteredCategory = await this.categoryModel
       .findOne()
       .where("players")
@@ -116,7 +114,7 @@ export class CategoriesService {
   }
 
   private async findAll(): Promise<Category[]> {
-    return await this.categoryModel.find().exec();
+    return await this.categoryModel.find().populate("players").exec();
   }
 
   private async findById(_id: string): Promise<Category> {
