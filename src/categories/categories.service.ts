@@ -1,22 +1,22 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
-import { Category } from './interfaces/categories.interfaces';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
-import { CreateCategoryDto } from './dtos/create-category.dto';
-import { UpdateCategoryDto } from './dtos/update-category.dto';
-import { PlayersService } from 'src/players/players.service';
+import { BadRequestException, Injectable } from "@nestjs/common";
+import { Category } from "./interfaces/categories.interfaces";
+import { InjectModel } from "@nestjs/mongoose";
+import { Model } from "mongoose";
+import { CreateCategoryDto } from "./dtos/create-category.dto";
+import { UpdateCategoryDto } from "./dtos/update-category.dto";
+import { PlayersService } from "src/players/players.service";
 
 @Injectable()
 export class CategoriesService {
   constructor(
-    @InjectModel('Category') private readonly categoryModel: Model<Category>,
-    private readonly playersService: PlayersService,
+    @InjectModel("Category") private readonly categoryModel: Model<Category>,
+    private readonly playersService: PlayersService
   ) {}
 
   // public methods
 
   async createCategory(
-    createCategoryDto: CreateCategoryDto,
+    createCategoryDto: CreateCategoryDto
   ): Promise<Category> {
     const { category } = createCategoryDto;
 
@@ -33,7 +33,7 @@ export class CategoriesService {
 
   async updateCategory(
     _id: string,
-    updateCategoryDto: UpdateCategoryDto,
+    updateCategoryDto: UpdateCategoryDto
   ): Promise<void> {
     const existingCategory = await this.categoryModel.findById({ _id }).exec();
 
@@ -57,24 +57,18 @@ export class CategoriesService {
   }
 
   async attachPlayerCategory(params: string[]): Promise<void> {
-    const category = params['category'];
-    const playerId = params['playerId'];
+    const category = params["category"];
+    const playerId = params["playerId"];
 
     const categoryFound = await this.categoryModel.findById(category).exec();
 
+    console.log(categoryFound);
+
     const playerRegisteredCategory = await this.categoryModel
       .findOne()
-      .where('players')
+      .where("players")
       .in(playerId)
       .exec();
-
-    /*
-    Desafio
-    Escopo da exceção realocado para o próprio Categorias Service
-    Verificar se o jogador informado já se encontra cadastrado
-    */
-
-    //await this.jogadoresService.consultarJogadorPeloId(idJogador)
 
     const foundPlayer = await this.playersService.findPlayerById(playerId);
 
@@ -88,7 +82,7 @@ export class CategoriesService {
 
     if (playerRegisteredCategory) {
       throw new BadRequestException(
-        `Player ${playerId} already registered in Category ${playerRegisteredCategory.category}!`,
+        `Player ${playerId} already registered in Category ${playerRegisteredCategory.category}!`
       );
     }
 
@@ -98,7 +92,7 @@ export class CategoriesService {
       .findOneAndUpdate(
         { _id: categoryFound._id },
         { $push: { players: foundPlayer } },
-        { new: true },
+        { new: true }
       )
       .exec();
   }
@@ -106,7 +100,7 @@ export class CategoriesService {
   // private methods
 
   private async create(
-    createCategoryDto: CreateCategoryDto,
+    createCategoryDto: CreateCategoryDto
   ): Promise<Category> {
     const createdCategory = new this.categoryModel(createCategoryDto);
     return await createdCategory.save();
@@ -114,7 +108,7 @@ export class CategoriesService {
 
   private async update(
     _id: string,
-    category: UpdateCategoryDto,
+    category: UpdateCategoryDto
   ): Promise<void> {
     await this.categoryModel
       .findOneAndUpdate({ _id }, { $set: category })
