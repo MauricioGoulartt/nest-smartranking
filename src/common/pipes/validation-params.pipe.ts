@@ -4,11 +4,11 @@ import {
   BadRequestException,
 } from "@nestjs/common";
 
-export class ValidacaoParametrosPipe implements PipeTransform {
+export class ValidationParamsPipe implements PipeTransform {
   transform(value: any, metadata: ArgumentMetadata) {
     if (!value) {
       throw new BadRequestException(
-        `O valor do parametro ${metadata.data} deve ser informado`
+        `Value of parameter ${metadata.data} is required!`
       );
     }
 
