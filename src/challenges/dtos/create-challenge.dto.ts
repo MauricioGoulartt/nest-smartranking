@@ -1,15 +1,22 @@
-import { ArrayMinSize, IsArray, IsNotEmpty, IsString } from "class-validator";
+import {
+  ArrayMaxSize,
+  ArrayMinSize,
+  IsArray,
+  IsDateString,
+  IsNotEmpty,
+} from "class-validator";
+import { Player } from "src/players/interfaces/player.interface";
 
 export class CreateChallengeDto {
   @IsNotEmpty()
-  @IsString()
-  readonly category: string;
+  @IsDateString()
+  dateHourChallenge: Date;
 
   @IsNotEmpty()
-  @IsString()
-  description: string;
+  applicant: Player;
 
   @IsArray()
-  @ArrayMinSize(1)
-  readonly events: Array<Event>;
+  @ArrayMinSize(2)
+  @ArrayMaxSize(2)
+  players: Array<Player>;
 }
