@@ -5,6 +5,7 @@ import { Model } from "mongoose";
 import { CreateCategoryDto } from "./dtos/create-category.dto";
 import { UpdateCategoryDto } from "./dtos/update-category.dto";
 import { PlayersService } from "src/players/players.service";
+import { Player } from "src/players/interfaces/player.interface";
 
 @Injectable()
 export class CategoriesService {
@@ -50,6 +51,10 @@ export class CategoriesService {
 
   async findCategoryById(_id: string): Promise<Category> {
     return await this.findById(_id);
+  }
+
+  async findPlayerCategory(player: Player): Promise<Category> {
+    return await this.findPlayerCategory(player);
   }
 
   async deleteCategory(_id: string): Promise<void> {
@@ -115,6 +120,10 @@ export class CategoriesService {
 
   private async findAll(): Promise<Category[]> {
     return await this.categoryModel.find().populate("players").exec();
+  }
+
+  private async findByPlayer(player: Player): Promise<Category | null> {
+    return await this.categoryModel.findOne().where("players").in([player.id]);
   }
 
   private async findById(_id: string): Promise<Category> {
