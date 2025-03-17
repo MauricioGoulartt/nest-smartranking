@@ -4,7 +4,7 @@ import {
   Injectable,
 } from "@nestjs/common";
 import { CategoriesService } from "src/categories/categories.service";
-import { Challenge } from "./interfaces/challenges.interfaces";
+import { Challenge } from "./interfaces/challenges.interface";
 import { CreateChallengeDto } from "./dtos/create-challenge.dto";
 import { PlayersService } from "src/players/players.service";
 import { InjectModel } from "@nestjs/mongoose";
@@ -32,36 +32,36 @@ export class ChallengesService {
       if (playerFilter.length > 0) {
         throw new BadRequestException(`The id ${playerDto.id} not a player!`);
       }
-
-      const applicantPlayerMatch = await createChallengeDto.players.filter(
-        (player) => player._id === createChallengeDto.applicant
-      );
-
-      if (applicantPlayerMatch.length === 0) {
-        throw new BadRequestException(
-          `The applicant must be player of the match!`
-        );
-      }
-
-      const categoryPlayer = await this.categoriesService.findPlayerCategory(
-        createChallengeDto.applicant
-      );
-
-      if (!categoryPlayer) {
-        throw new BadRequestException(
-          `O solicitante precisa estar registrado em uma categoria!`
-        );
-      }
-
-      const desafioCriado = new this.cate(criarDesafioDto);
-      desafioCriado.categoria = categoriaDoJogador.categoria;
-      desafioCriado.dataHoraSolicitacao = new Date();
-      /*
-    Quando um desafio for criado, definimos o status desafio como pendente
-    */
-      desafioCriado.status = DesafioStatus.PENDENTE;
-      this.logger.log(`desafioCriado: ${JSON.stringify(desafioCriado)}`);
-      return await desafioCriado.save();
     });
+
+    const applicantPlayerMatch = await createChallengeDto.players.filter(
+      (player) => player._id === createChallengeDto.applicant
+    );
+
+    if (applicantPlayerMatch.length === 0) {
+      throw new BadRequestException(
+        `The applicant must be player of the match!`
+      );
+    }
+
+    const categoryPlayer = await this.categoriesService.findPlayerCategory(
+      createChallengeDto.applicant
+    );
+
+    if (!categoryPlayer) {
+      throw new BadRequestException(
+        `O solicitante precisa estar registrado em uma categoria!`
+      );
+    }
+
+    const createdChallenge = new this.challengeModel(createChallengeDto);
+    createdChallenge.category = categoryPlayer.category;
+    createdChallenge.dateHourChallenge = new Date();
+    /*
+  Quando um desafio for criado, definimos o status desafio como pendente
+  */
+    desafioCriado.status = DesafioStatus.PENDENTE;
+    this.logger.log(`desafioCriado: ${JSON.stringify(desafioCriado)}`);
+    return await desafioCriado.save();
   }
 }

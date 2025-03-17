@@ -1,11 +1,9 @@
-import { ArrayMinSize, IsArray, IsOptional, IsString } from "class-validator";
+import { IsOptional } from "class-validator";
 
 export class UpdateChallengeDto {
-  @IsString()
   @IsOptional()
-  description: string;
+  dateHourChallenge: Date;
 
-  @IsArray()
-  @ArrayMinSize(1)
-  readonly events: Array<Event>;
+  @IsOptional()
+  status: DesafioStatus;
 }
