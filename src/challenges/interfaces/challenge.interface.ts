@@ -10,14 +10,14 @@ export interface Challenge extends Document {
   applicant: Player;
   category: string;
   players: Array<Player>;
-  match: Match;
+  match: Match | string;
 }
 
 export interface Match extends Document {
-  cacategoryegoria: string;
-  jogadores: Array<Player>;
+  category: string;
+  players: Array<Player>;
   def: Player;
-  resultado: Array<Result>;
+  result: Array<Result>;
 }
 
 export interface Result {
